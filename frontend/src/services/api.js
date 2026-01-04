@@ -17,8 +17,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Перенаправити на логін якщо не авторизовано
-      window.location.href = '/login';
+      // Не перенаправляти якщо вже на сторінці логіну або це запит перевірки автентифікації
+      const isLoginPage = window.location.pathname === '/login';
+      const isAuthCheck = error.config?.url?.includes('/auth/me');
+      
+      if (!isLoginPage && !isAuthCheck) {
+        // Перенаправити на логін якщо не авторизовано
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

@@ -8,8 +8,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Перевірити чи є активна сесія
-    checkAuth();
+    // Не перевіряти автентифікацію на сторінці логіну
+    const isLoginPage = window.location.pathname === '/login';
+    if (!isLoginPage) {
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const checkAuth = async () => {
@@ -17,6 +22,8 @@ export function AuthProvider({ children }) {
       const response = await authService.getCurrentUser();
       if (response.success) {
         setUser(response.user);
+      } else {
+        setUser(null);
       }
     } catch (error) {
       setUser(null);
