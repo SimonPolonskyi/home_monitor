@@ -35,16 +35,27 @@ router.post('/login', loginLimiter, async (req, res) => {
       role: user.role,
     };
     
-    // Явно встановити Content-Type
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).json({
-      success: true,
-      user: {
-        id: user.id,
-        username: user.username,
-        role: user.role,
-        email: user.email,
-      },
+    // Зберегти сесію перед відправкою відповіді
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to save session',
+        });
+      }
+      
+      // Явно встановити Content-Type
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).json({
+        success: true,
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+          email: user.email,
+        },
+      });
     });
     
   } catch (error) {

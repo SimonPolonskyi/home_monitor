@@ -12,12 +12,26 @@ const api = axios.create({
   },
 });
 
+// Interceptor для обробки запитів (додати cookies)
+api.interceptors.request.use(
+  (config) => {
+    console.log('Request URL:', config.url);
+    console.log('Request cookies:', document.cookie);
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Interceptor для обробки відповідей
 api.interceptors.response.use(
   (response) => {
     console.log('API Response:', response);
     console.log('Response data:', response.data);
     console.log('Response headers:', response.headers);
+    console.log('Set-Cookie header:', response.headers['set-cookie']);
+    console.log('Cookies after response:', document.cookie);
     return response;
   },
   (error) => {

@@ -39,6 +39,7 @@ app.use(session({
     maxAge: config.session.maxAge,
     sameSite: 'lax', // Змінити з 'strict' на 'lax' для кращої сумісності
     path: '/',
+    domain: undefined, // Не встановлювати domain, щоб працювало на будь-якому домені
   },
   proxy: true, // Довіряти proxy (nginx)
 }));
