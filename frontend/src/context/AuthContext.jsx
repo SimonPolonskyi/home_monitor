@@ -33,12 +33,17 @@ export function AuthProvider({ children }) {
   };
 
   const login = async (username, password) => {
-    const response = await authService.login(username, password);
-    if (response.success) {
-      setUser(response.user);
-      return { success: true };
+    try {
+      const response = await authService.login(username, password);
+      if (response && response.success) {
+        setUser(response.user);
+        return { success: true };
+      }
+      return { success: false, error: response?.error || 'Помилка входу' };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, error: error.response?.data?.error || 'Помилка з\'єднання' };
     }
-    return { success: false, error: response.error };
   };
 
   const logout = async () => {

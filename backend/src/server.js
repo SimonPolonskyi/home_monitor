@@ -13,10 +13,15 @@ import statsRoutes from './routes/stats.js';
 
 const app = express();
 
+// Trust proxy (для nginx)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
   origin: config.cors.origin,
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
 }));
 
 app.use(express.json());
@@ -27,12 +32,15 @@ app.use(session({
   secret: config.session.secret,
   resave: false,
   saveUninitialized: false,
+  name: 'ups.sid', // Змінити назву cookie
   cookie: {
-    secure: config.server.env === 'production',
+    secure: false, // Для HTTP (якщо використовуєте HTTPS, встановіть true)
     httpOnly: true,
     maxAge: config.session.maxAge,
-    sameSite: 'strict',
+    sameSite: 'lax', // Змінити з 'strict' на 'lax' для кращої сумісності
+    path: '/',
   },
+  proxy: true, // Довіряти proxy (nginx)
 }));
 
 // Routes
