@@ -1,0 +1,15 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Копіювати package files
+COPY package*.json ./
+
+# Встановити залежності
+RUN npm install
+
+# Відкрити порт
+EXPOSE 3001
+
+# Запустити dev server
+CMD ["npm", "run", "dev", "--", "--host"]

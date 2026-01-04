@@ -1,0 +1,18 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Встановити nodemon для hot reload
+RUN npm install -g nodemon
+
+# Копіювати package files
+COPY package*.json ./
+
+# Встановити залежності (включаючи dev)
+RUN npm install
+
+# Відкрити порт
+EXPOSE 3000
+
+# Запустити з nodemon для hot reload
+CMD ["nodemon", "--watch", "src", "src/server.js"]

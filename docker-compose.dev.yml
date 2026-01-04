@@ -1,0 +1,52 @@
+version: '3.8'
+
+# Development версія з hot reload
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: ups-backend-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DB_TYPE=sqlite
+      - DB_PATH=/app/data/ups_monitor.db
+      - SESSION_SECRET=${SESSION_SECRET:-dev-secret-key}
+      - DEVICE_API_KEY=${DEVICE_API_KEY:-dev-api-key}
+      - CORS_ORIGIN=http://localhost:3001
+    volumes:
+      - ./backend:/app
+      - backend-data-dev:/app/data
+      - /app/node_modules
+    restart: unless-stopped
+    networks:
+      - ups-network-dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: ups-frontend-dev
+    ports:
+      - "3001:3001"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - ups-network-dev
+
+volumes:
+  backend-data-dev:
+    driver: local
+
+networks:
+  ups-network-dev:
+    driver: bridge
