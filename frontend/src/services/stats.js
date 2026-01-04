@@ -5,7 +5,7 @@ export const statsService = {
    * Отримати загальну статистику
    */
   async getStats() {
-    const response = await api.get('/api/stats');
+    const response = await api.get('/stats');
     return response.data;
   },
 };

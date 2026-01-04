@@ -6,7 +6,7 @@ export const deviceService = {
    */
   async getDevices(type = null) {
     const params = type ? { type } : {};
-    const response = await api.get('/api/devices', { params });
+    const response = await api.get('/devices', { params });
     return response.data;
   },
 
@@ -14,7 +14,7 @@ export const deviceService = {
    * Отримати пристрій за ID
    */
   async getDevice(deviceId) {
-    const response = await api.get(`/api/devices/${deviceId}`);
+    const response = await api.get(`/devices/${deviceId}`);
     return response.data;
   },
 
@@ -22,7 +22,7 @@ export const deviceService = {
    * Отримати поточний стан пристрою
    */
   async getCurrentState(deviceId) {
-    const response = await api.get(`/api/devices/${deviceId}/current`);
+    const response = await api.get(`/devices/${deviceId}/current`);
     return response.data;
   },
 
@@ -30,7 +30,7 @@ export const deviceService = {
    * Отримати історію вимірювань
    */
   async getHistory(deviceId, options = {}) {
-    const response = await api.get(`/api/devices/${deviceId}/history`, {
+    const response = await api.get(`/devices/${deviceId}/history`, {
       params: options,
     });
     return response.data;
@@ -40,7 +40,7 @@ export const deviceService = {
    * Отримати помилки пристрою
    */
   async getErrors(deviceId, options = {}) {
-    const response = await api.get(`/api/devices/${deviceId}/errors`, {
+    const response = await api.get(`/devices/${deviceId}/errors`, {
       params: options,
     });
     return response.data;
@@ -50,7 +50,7 @@ export const deviceService = {
    * Отримати попередження пристрою
    */
   async getWarnings(deviceId, options = {}) {
-    const response = await api.get(`/api/devices/${deviceId}/warnings`, {
+    const response = await api.get(`/devices/${deviceId}/warnings`, {
       params: options,
     });
     return response.data;
