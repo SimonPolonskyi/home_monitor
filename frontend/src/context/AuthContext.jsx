@@ -34,25 +34,13 @@ export function AuthProvider({ children }) {
 
   const login = async (username, password) => {
     try {
-      console.log('Attempting login for:', username);
       const response = await authService.login(username, password);
-      console.log('Login response received:', response);
-      
       if (response && response.success) {
-        console.log('Login successful, user:', response.user);
         setUser(response.user);
         return { success: true };
       }
-      console.log('Login failed, response:', response);
       return { success: false, error: response?.error || 'Помилка входу' };
     } catch (error) {
-      console.error('Login error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        response: error.response,
-        data: error.response?.data,
-        status: error.response?.status,
-      });
       return { 
         success: false, 
         error: error.response?.data?.error || error.message || 'Помилка з\'єднання' 

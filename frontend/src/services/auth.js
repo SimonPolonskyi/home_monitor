@@ -5,19 +5,11 @@ export const authService = {
    * Вхід користувача
    */
   async login(username, password) {
-    try {
-      const response = await api.post('/auth/login', {
-        username,
-        password,
-      });
-      console.log('Login response:', response);
-      console.log('Login response data:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Login request error:', error);
-      console.error('Error response:', error.response);
-      throw error;
-    }
+    const response = await api.post('/auth/login', {
+      username,
+      password,
+    });
+    return response.data;
   },
 
   /**
