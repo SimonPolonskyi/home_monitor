@@ -1,7 +1,7 @@
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
-import { config } from './config/config.js';
+import { config } from '../config/config.js';
 import { getDB, runMigration } from './database/db.js';
 import { runMigrations } from './database/migrations/run-migrations.js';
 
