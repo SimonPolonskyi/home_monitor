@@ -9,7 +9,7 @@ RUN apk add --no-cache wget
 COPY package*.json ./
 
 # Встановити залежності (включаючи dev для скриптів)
-RUN npm ci
+RUN npm install
 
 # Копіювати код
 COPY . .

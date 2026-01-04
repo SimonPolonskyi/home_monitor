@@ -10,7 +10,7 @@ ARG VITE_API_URL=http://localhost:3000
 COPY package*.json ./
 
 # Встановити залежності
-RUN npm ci
+RUN npm install
 
 # Копіювати код
 COPY . .

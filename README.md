@@ -39,7 +39,16 @@ Docker забезпечує ізоляцію, безпеку та простот
 
 ### Production режим
 
-1. **Створіть `.env` файл в корені проекту:**
+1. **Створіть `package-lock.json` файли (опціонально, для детермінованих збірок):**
+
+```bash
+cd backend && npm install && cd ..
+cd frontend && npm install && cd ..
+```
+
+**Примітка:** Якщо `package-lock.json` файли відсутні, Dockerfile використає `npm install` замість `npm ci`. Для production рекомендується мати `package-lock.json` файли.
+
+2. **Створіть `.env` файл в корені проекту:**
 
 ```env
 SESSION_SECRET=your-very-secure-secret-key-change-this
@@ -49,19 +58,19 @@ ADMIN_PASSWORD=your-secure-password
 VITE_API_URL=/api
 ```
 
-2. **Зберіть та запустіть контейнери:**
+3. **Зберіть та запустіть контейнери:**
 
 ```bash
 docker-compose up -d --build
 ```
 
-3. **Ініціалізуйте базу даних (перший запуск):**
+4. **Ініціалізуйте базу даних (перший запуск):**
 
 ```bash
 docker-compose exec backend npm run init-db
 ```
 
-4. **Перевірте статус:**
+5. **Перевірте статус:**
 
 ```bash
 docker-compose ps
