@@ -35,7 +35,9 @@ router.post('/login', loginLimiter, async (req, res) => {
       role: user.role,
     };
     
-    res.json({
+    // Явно встановити Content-Type
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json({
       success: true,
       user: {
         id: user.id,

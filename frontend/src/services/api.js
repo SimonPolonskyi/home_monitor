@@ -12,10 +12,18 @@ const api = axios.create({
   },
 });
 
-// Interceptor для обробки помилок
+// Interceptor для обробки відповідей
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('API Response:', response);
+    console.log('Response data:', response.data);
+    console.log('Response headers:', response.headers);
+    return response;
+  },
   (error) => {
+    console.error('API Error:', error);
+    console.error('Error response:', error.response);
+    
     if (error.response?.status === 401) {
       // Не перенаправляти якщо вже на сторінці логіну або це запит перевірки автентифікації
       const isLoginPage = window.location.pathname === '/login';
