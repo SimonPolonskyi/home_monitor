@@ -83,10 +83,15 @@ export class Measurement {
         COUNT(*) as count,
         AVG(CASE WHEN json_extract(data, '$.battery.voltage') IS NOT NULL 
             THEN json_extract(data, '$.battery.voltage') ELSE NULL END) as avg_battery_voltage,
-        AVG(CASE WHEN json_extract(data, '$.temperature') IS NOT NULL 
-            THEN json_extract(data, '$.temperature') ELSE NULL END) as avg_temperature,
+        AVG(COALESCE(
+            json_extract(data, '$.temperature_battery.value'),
+            json_extract(data, '$.temperature_board.value'),
+            json_extract(data, '$.temperature')
+        )) as avg_temperature,
         AVG(CASE WHEN json_extract(data, '$.efficiency') IS NOT NULL 
-            THEN json_extract(data, '$.efficiency') ELSE NULL END) as avg_efficiency
+            THEN json_extract(data, '$.efficiency') ELSE NULL END) as avg_efficiency,
+        AVG(CASE WHEN json_extract(data, '$.capacity.remaining_percent') IS NOT NULL 
+            THEN json_extract(data, '$.capacity.remaining_percent') ELSE NULL END) as avg_capacity
       FROM measurements
       WHERE device_id = ? AND timestamp >= ? AND timestamp <= ?
     `).get(deviceId, from, to);

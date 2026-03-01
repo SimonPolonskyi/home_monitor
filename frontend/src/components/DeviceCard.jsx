@@ -67,14 +67,32 @@ export default function DeviceCard({ device, onClick }) {
             </span>
           </div>
         )}
-        {currentState?.data?.temperature !== null && (
-          <div className="info-row">
-            <span className="info-label">Температура:</span>
-            <span className="info-value">
-              {currentState.data.temperature?.toFixed(1) || 'N/A'} °C
-            </span>
-          </div>
-        )}
+        {(() => {
+          const temp = currentState?.data;
+          const tempBattery = temp?.temperature_battery?.value ?? temp?.temperature;
+          const tempBoard = temp?.temperature_board?.value;
+          const capacity = temp?.capacity?.remaining_percent;
+          return (
+            <>
+              {(tempBattery != null || tempBoard != null) && (
+                <div className="info-row">
+                  <span className="info-label">Температура:</span>
+                  <span className="info-value">
+                    {tempBattery != null && tempBoard != null
+                      ? `${tempBattery?.toFixed(1)} / ${tempBoard?.toFixed(1)} °C`
+                      : (tempBattery ?? tempBoard)?.toFixed(1) + ' °C'}
+                  </span>
+                </div>
+              )}
+              {capacity != null && (
+                <div className="info-row">
+                  <span className="info-label">Заряд:</span>
+                  <span className="info-value">{capacity?.toFixed(0)}%</span>
+                </div>
+              )}
+            </>
+          );
+        })()}
       </div>
     </div>
   );

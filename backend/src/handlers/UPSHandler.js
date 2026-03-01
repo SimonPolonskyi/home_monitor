@@ -30,15 +30,26 @@ export class UPSHandler extends BaseHandler {
   static normalize(data) {
     const normalized = super.normalize(data);
     
+    // Зберегти temperature для backward compatibility (якщо є старий формат)
+    const temperatureLegacy = data.temperature ?? 
+      data.temperature_battery?.value ?? 
+      data.temperature_board?.value ?? 
+      null;
+    
     // Структурувати дані для зберігання
     normalized.data = {
       battery: data.battery || null,
       output: data.output || null,
-      temperature: data.temperature || null,
+      // Новий формат: temperature_battery, temperature_board
+      temperature_battery: data.temperature_battery || null,
+      temperature_board: data.temperature_board || null,
+      // Backward compatibility
+      temperature: temperatureLegacy,
       temperature_valid: data.temperature_valid !== false,
       efficiency: data.efficiency || null,
       energy_consumed: data.energy_consumed || null,
       energy_supplied: data.energy_supplied || null,
+      capacity: data.capacity || null,
       errors: data.errors || null,
       warnings: data.warnings || null,
     };

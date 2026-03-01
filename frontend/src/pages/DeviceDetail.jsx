@@ -61,13 +61,21 @@ export default function DeviceDetail() {
     return history
       .slice()
       .reverse()
-      .map((m) => ({
-        time: format(new Date(m.timestamp), 'HH:mm:ss'),
-        batteryVoltage: m.data?.battery?.voltage || null,
-        outputVoltage: m.data?.output?.voltage || null,
-        temperature: m.data?.temperature || null,
-        efficiency: m.data?.efficiency || null,
-      }));
+      .map((m) => {
+        const d = m.data;
+        const tempBattery = d?.temperature_battery?.value ?? d?.temperature;
+        const tempBoard = d?.temperature_board?.value;
+        return {
+          time: format(new Date(m.timestamp), 'HH:mm:ss'),
+          batteryVoltage: d?.battery?.voltage || null,
+          outputVoltage: d?.output?.voltage || null,
+          temperature: tempBattery ?? tempBoard ?? null,
+          temperatureBattery: tempBattery ?? null,
+          temperatureBoard: tempBoard ?? null,
+          efficiency: d?.efficiency || null,
+          remainingPercent: d?.capacity?.remaining_percent ?? null,
+        };
+      });
   };
 
   if (loading) {
@@ -180,15 +188,50 @@ export default function DeviceDetail() {
                   </div>
                 </>
               )}
-              {data.temperature !== null && (
+              {data.temperature_battery && (
                 <div className="state-item">
-                  <span className="state-label">Температура:</span>
+                  <span className="state-label">Темп. батареї:</span>
                   <span className="state-value">
-                    {data.temperature?.toFixed(1) || 'N/A'} °C
+                    {data.temperature_battery.value?.toFixed(1) ?? 'N/A'} °C
+                    {data.temperature_battery.sensor && (
+                      <span className="state-sensor"> ({data.temperature_battery.sensor})</span>
+                    )}
                   </span>
                 </div>
               )}
-              {data.efficiency !== null && (
+              {data.temperature_board && (
+                <div className="state-item">
+                  <span className="state-label">Темп. плати:</span>
+                  <span className="state-value">
+                    {data.temperature_board.value?.toFixed(1) ?? 'N/A'} °C
+                    {data.temperature_board.sensor && (
+                      <span className="state-sensor"> ({data.temperature_board.sensor})</span>
+                    )}
+                  </span>
+                </div>
+              )}
+              {!data.temperature_battery && !data.temperature_board && data.temperature != null && (
+                <div className="state-item">
+                  <span className="state-label">Температура:</span>
+                  <span className="state-value">
+                    {data.temperature?.toFixed(1) ?? 'N/A'} °C
+                  </span>
+                </div>
+              )}
+              {data.capacity && (
+                <div className="state-item capacity-item">
+                  <span className="state-label">Ємність (SOC):</span>
+                  <span className="state-value">
+                    {data.capacity.remaining_percent?.toFixed(1) ?? 'N/A'}%
+                    {data.capacity.remaining_ah != null && (
+                      <span className="state-sub">
+                        {' '}({data.capacity.remaining_ah?.toFixed(1)} / {data.capacity.total_ah?.toFixed(1)} А·год)
+                      </span>
+                    )}
+                  </span>
+                </div>
+              )}
+              {data.efficiency !== null && data.efficiency !== undefined && (
                 <div className="state-item">
                   <span className="state-label">Ефективність:</span>
                   <span className="state-value">
@@ -230,7 +273,7 @@ export default function DeviceDetail() {
             </ResponsiveContainer>
           </div>
 
-          {chartData.some((d) => d.temperature !== null) && (
+          {(chartData.some((d) => d.temperatureBattery !== null) || chartData.some((d) => d.temperatureBoard !== null) || chartData.some((d) => d.temperature !== null)) && (
             <div className="chart-card">
               <h3>Температура</h3>
               <ResponsiveContainer width="100%" height={300}>
@@ -240,11 +283,53 @@ export default function DeviceDetail() {
                   <YAxis />
                   <Tooltip />
                   <Legend />
+                  {chartData.some((d) => d.temperatureBattery !== null) && (
+                    <Line
+                      type="monotone"
+                      dataKey="temperatureBattery"
+                      stroke="#e74c3c"
+                      name="Батарея (°C)"
+                      dot={false}
+                    />
+                  )}
+                  {chartData.some((d) => d.temperatureBoard !== null) && (
+                    <Line
+                      type="monotone"
+                      dataKey="temperatureBoard"
+                      stroke="#e67e22"
+                      name="Плата (°C)"
+                      dot={false}
+                    />
+                  )}
+                  {chartData.some((d) => d.temperature !== null) && !chartData.some((d) => d.temperatureBattery !== null) && !chartData.some((d) => d.temperatureBoard !== null) && (
+                    <Line
+                      type="monotone"
+                      dataKey="temperature"
+                      stroke="#e74c3c"
+                      name="Температура (°C)"
+                      dot={false}
+                    />
+                  )}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {chartData.some((d) => d.remainingPercent !== null) && (
+            <div className="chart-card">
+              <h3>Заряд батареї (SOC)</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" />
+                  <YAxis domain={[0, 100]} />
+                  <Tooltip />
+                  <Legend />
                   <Line
                     type="monotone"
-                    dataKey="temperature"
-                    stroke="#e74c3c"
-                    name="Температура (°C)"
+                    dataKey="remainingPercent"
+                    stroke="#27ae60"
+                    name="Заряд (%)"
                     dot={false}
                   />
                 </LineChart>

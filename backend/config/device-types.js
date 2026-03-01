@@ -5,7 +5,7 @@
 export const deviceTypes = {
   UPS: {
     name: 'UPS System',
-    fields: ['battery', 'output', 'temperature', 'efficiency'],
+    fields: ['battery', 'output', 'temperature_battery', 'temperature_board', 'efficiency', 'capacity'],
     statusLevels: ['ok', 'warning', 'error', 'critical'],
     defaultInterval: 30000, // 30 секунд
     handler: 'UPSHandler',
