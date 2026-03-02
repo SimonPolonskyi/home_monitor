@@ -33,36 +33,42 @@ export class Measurement {
   }
 
   /**
-   * Отримати історію вимірювань
+   * Отримати історію вимірювань з пагінацією
    */
   static getHistory(deviceId, options = {}) {
     const db = getDB();
     const {
       from = null,
       to = null,
-      limit = 1000,
+      limit = 100,
+      offset = 0,
     } = options;
-    
-    let query = 'SELECT * FROM measurements WHERE device_id = ?';
-    const params = [deviceId];
-    
+
+    let whereClause = 'WHERE device_id = ?';
+    const whereParams = [deviceId];
+
     if (from) {
-      query += ' AND timestamp >= ?';
-      params.push(from);
+      whereClause += ' AND timestamp >= ?';
+      whereParams.push(from);
     }
-    
+
     if (to) {
-      query += ' AND timestamp <= ?';
-      params.push(to);
+      whereClause += ' AND timestamp <= ?';
+      whereParams.push(to);
     }
-    
-    query += ' ORDER BY timestamp DESC LIMIT ?';
-    params.push(limit);
-    
-    const measurements = db.prepare(query).all(...params);
-    
-    // Парсити JSON data
-    return measurements.map(m => {
+
+    // Загальна кількість для пагінації
+    const countRow = db.prepare(
+      `SELECT COUNT(*) as total FROM measurements ${whereClause}`
+    ).get(...whereParams);
+
+    const measurements = db.prepare(`
+      SELECT * FROM measurements ${whereClause}
+      ORDER BY timestamp DESC
+      LIMIT ? OFFSET ?
+    `).all(...whereParams, parseInt(limit), parseInt(offset));
+
+    const result = measurements.map(m => {
       try {
         m.data = JSON.parse(m.data);
       } catch (e) {
@@ -70,6 +76,13 @@ export class Measurement {
       }
       return m;
     });
+
+    return {
+      data: result,
+      total: countRow.total,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+    };
   }
 
   /**

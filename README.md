@@ -267,7 +267,18 @@ npm run preview
 ### 3. Перегляд даних
 
 - **Dashboard** - список всіх пристроїв та загальна статистика
-- **Детальна сторінка пристрою** - поточний стан, графіки, історія помилок
+- **Детальна сторінка пристрою** - поточний стан, графіки, історія помилок, експорт CSV
+- **Налаштування** - редагування назви та розташування пристроїв
+
+## Очищення старих даних
+
+```bash
+# Видалити measurements/errors/warnings старші 90 днів (за замовчуванням)
+docker-compose exec backend npm run cleanup
+
+# Або вказати кількість днів
+docker-compose exec backend npm run cleanup -- 60
+```
 
 ## Створення користувачів
 
@@ -297,7 +308,9 @@ npm run create-user -- --username myuser --password mypassword --role viewer
 **GET /api/devices** - Список пристроїв
 **GET /api/devices/:device_id** - Деталі пристрою
 **GET /api/devices/:device_id/current** - Поточний стан
-**GET /api/devices/:device_id/history** - Історія
+**GET /api/devices/:device_id/history** - Історія (пагінація: limit, offset, from, to)
+**PATCH /api/devices/:device_id** - Оновити пристрій (name, location, model)
+**GET /api/devices/:device_id/export** - Експорт (format=csv|json)
 **GET /api/devices/:device_id/errors** - Помилки
 **GET /api/stats** - Статистика
 

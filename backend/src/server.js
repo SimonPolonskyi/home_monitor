@@ -2,10 +2,12 @@ import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import { config } from '../config/config.js';
-import { getDB, runMigration } from './database/db.js';
+import { validateProductionConfig } from './config/validateProduction.js';
 import { runMigrations } from './database/migrations/run-migrations.js';
+import { SqliteSessionStore } from './auth/SqliteSessionStore.js';
 
 // Routes
+import { apiLimiter } from './middleware/rateLimit.js';
 import dataRoutes from './routes/data.js';
 import authRoutes from './routes/auth.js';
 import devicesRoutes from './routes/devices.js';
@@ -27,28 +29,28 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session configuration
+// Session configuration - SQLite store (сесії зберігаються в БД, не втрачаються при перезапуску)
 app.use(session({
   secret: config.session.secret,
   resave: false,
   saveUninitialized: false,
-  name: 'ups.sid', // Змінити назву cookie
+  name: 'ups.sid',
+  store: new SqliteSessionStore(),
   cookie: {
-    secure: false, // Для HTTP (якщо використовуєте HTTPS, встановіть true)
+    secure: config.server.env === 'production' && process.env.FORCE_HTTPS === 'true',
     httpOnly: true,
     maxAge: config.session.maxAge,
-    sameSite: 'lax', // Змінити з 'strict' на 'lax' для кращої сумісності
+    sameSite: 'lax',
     path: '/',
-    domain: undefined, // Не встановлювати domain, щоб працювало на будь-якому домені
   },
-  proxy: true, // Довіряти proxy (nginx)
+  proxy: true,
 }));
 
 // Routes
 app.use('/api/data', dataRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/devices', devicesRoutes);
-app.use('/api/stats', statsRoutes);
+app.use('/api/devices', apiLimiter, devicesRoutes);
+app.use('/api/stats', apiLimiter, statsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -96,6 +98,7 @@ async function initializeDatabase() {
 
 // Start server
 async function startServer() {
+  validateProductionConfig(config);
   await initializeDatabase();
   
   const PORT = config.server.port;
@@ -103,7 +106,16 @@ async function startServer() {
     console.log(`Server running on port ${PORT}`);
     console.log(`Environment: ${config.server.env}`);
     console.log(`CORS origin: ${config.cors.origin}`);
+    console.log('Session store: SQLite (persistent)');
   });
+
+  // Очищення прострочених сесій кожну годину
+  setInterval(() => {
+    const pruned = SqliteSessionStore.prune();
+    if (pruned > 0) {
+      console.log(`Pruned ${pruned} expired session(s)`);
+    }
+  }, 60 * 60 * 1000);
 }
 
 // Graceful shutdown

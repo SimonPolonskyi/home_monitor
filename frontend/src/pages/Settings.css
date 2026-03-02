@@ -1,0 +1,160 @@
+.settings-page {
+  padding: 2rem;
+}
+
+.settings-page h1 {
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
+.settings-page h2 {
+  margin-bottom: 0.5rem;
+  color: #34495e;
+}
+
+.section-hint {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.settings-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+}
+
+.devices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.device-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid #ecf0f1;
+  border-radius: 6px;
+}
+
+.device-info {
+  flex: 1;
+}
+
+.device-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.device-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.device-meta {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-top: 0.25rem;
+}
+
+.device-meta span {
+  margin-right: 0.5rem;
+}
+
+.btn-edit {
+  padding: 0.5rem 1rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-edit:hover {
+  background: #2980b9;
+}
+
+.device-edit-form {
+  flex: 1;
+}
+
+.form-row {
+  margin-bottom: 0.75rem;
+}
+
+.form-row label {
+  display: block;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-bottom: 0.25rem;
+}
+
+.form-row input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.form-actions button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.form-actions button:first-child {
+  background: #27ae60;
+  color: white;
+}
+
+.form-actions button:first-child:hover:not(:disabled) {
+  background: #229954;
+}
+
+.form-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background: #95a5a6 !important;
+  color: white !important;
+}
+
+.btn-cancel:hover {
+  background: #7f8c8d !important;
+}
+
+.no-devices {
+  text-align: center;
+  padding: 2rem;
+  color: #7f8c8d;
+}
+
+.error-banner {
+  background-color: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}

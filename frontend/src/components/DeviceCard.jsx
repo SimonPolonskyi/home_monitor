@@ -1,31 +1,8 @@
 import './DeviceCard.css';
 import { format } from 'date-fns';
+import { getStatusColor, getStatusText } from '../utils/statusColors';
 
 export default function DeviceCard({ device, onClick }) {
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'ok':
-        return '#27ae60';
-      case 'warning':
-        return '#f39c12';
-      case 'error':
-        return '#e74c3c';
-      case 'critical':
-        return '#c0392b';
-      default:
-        return '#95a5a6';
-    }
-  };
-
-  const getStatusText = (status) => {
-    const statusMap = {
-      ok: 'ОК',
-      warning: 'Попередження',
-      error: 'Помилка',
-      critical: 'Критично',
-    };
-    return statusMap[status] || status;
-  };
 
   const currentState = device.current_state;
   const status = currentState?.status || 'unknown';

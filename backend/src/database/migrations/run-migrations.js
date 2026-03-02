@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
  */
 export function runMigrations() {
   const migrationsDir = __dirname;
-  const files = ['001_initial_schema.sql'];
+  const files = ['001_initial_schema.sql', '002_sessions_table.sql'];
   
   console.log('Running database migrations...');
   

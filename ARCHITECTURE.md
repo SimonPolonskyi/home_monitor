@@ -115,7 +115,7 @@
 - `status` (TEXT) - 'ok', 'warning', 'error', 'critical'
 - `data_valid` (BOOLEAN)
 - `data` (JSON) - гнучке зберігання даних
-  - Для UPS: `{battery, output, temperature, efficiency, energy_consumed, energy_supplied}`
+  - Для UPS: `{battery, output, temperature_battery, temperature_board, capacity, efficiency, energy_consumed, energy_supplied}`
   - Для інших типів: свої поля
 - `created_at` (DATETIME)
 
@@ -388,7 +388,7 @@ ups-monitor-server/
 export const deviceTypes = {
   UPS: {
     name: 'UPS System',
-    fields: ['battery', 'output', 'temperature', 'efficiency'],
+    fields: ['battery', 'output', 'temperature_battery', 'temperature_board', 'efficiency', 'capacity'],
     statusLevels: ['ok', 'warning', 'error', 'critical'],
     defaultInterval: 30000,
     handler: 'UPSHandler'

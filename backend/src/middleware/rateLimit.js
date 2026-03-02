@@ -5,7 +5,7 @@ import rateLimit from 'express-rate-limit';
  */
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 хвилин
-  max: 100, // максимум 100 запитів
+  max: 300, // максимум 300 запитів (polling ~4 req/30с ≈ 120 за 15 хв на пристрій)
   message: 'Too many requests from this IP, please try again later.',
 });
 

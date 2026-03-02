@@ -36,21 +36,6 @@ export default function Dashboard() {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'ok':
-        return '#27ae60';
-      case 'warning':
-        return '#f39c12';
-      case 'error':
-        return '#e74c3c';
-      case 'critical':
-        return '#c0392b';
-      default:
-        return '#95a5a6';
-    }
-  };
-
   if (loading) {
     return <div className="loading">Завантаження...</div>;
   }

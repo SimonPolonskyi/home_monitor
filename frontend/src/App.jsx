@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import DeviceDetail from './pages/DeviceDetail';
+import Settings from './pages/Settings';
 import Header from './components/Header';
 import './App.css';
 
@@ -23,6 +24,7 @@ function App() {
                     <Routes>
                       <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/devices/:deviceId" element={<DeviceDetail />} />
+                      <Route path="/settings" element={<Settings />} />
                       <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     </Routes>
                   </main>

@@ -92,6 +92,72 @@ export class Device {
   }
 
   /**
+   * Оновити метадані пристрою (name, location)
+   */
+  static update(deviceId, data) {
+    const db = getDB();
+    const existing = db.prepare('SELECT * FROM devices WHERE device_id = ?').get(deviceId);
+    if (!existing) {
+      return null;
+    }
+
+    const updates = [];
+    const params = [];
+
+    if (data.name !== undefined) {
+      updates.push('name = ?');
+      params.push(data.name);
+    }
+    if (data.location !== undefined) {
+      updates.push('location = ?');
+      params.push(data.location);
+    }
+    if (data.model !== undefined) {
+      updates.push('model = ?');
+      params.push(data.model);
+    }
+    if (updates.length === 0) {
+      return this.findByDeviceId(deviceId);
+    }
+
+    params.push(deviceId);
+    db.prepare(`
+      UPDATE devices SET ${updates.join(', ')} WHERE device_id = ?
+    `).run(...params);
+
+    return this.findByDeviceId(deviceId);
+  }
+
+  /**
+   * Отримати поточні стани для списку пристроїв (оптимізація для GET /devices)
+   */
+  static getCurrentStatesBatch(deviceIds) {
+    if (!deviceIds.length) return {};
+    const db = getDB();
+    const placeholders = deviceIds.map(() => '?').join(',');
+    const rows = db.prepare(`
+      SELECT m1.* FROM measurements m1
+      INNER JOIN (
+        SELECT device_id, MAX(timestamp) as max_ts
+        FROM measurements
+        WHERE device_id IN (${placeholders})
+        GROUP BY device_id
+      ) m2 ON m1.device_id = m2.device_id AND m1.timestamp = m2.max_ts
+    `).all(...deviceIds);
+
+    const map = {};
+    for (const row of rows) {
+      try {
+        row.data = JSON.parse(row.data);
+      } catch (e) {
+        row.data = null;
+      }
+      map[row.device_id] = row;
+    }
+    return map;
+  }
+
+  /**
    * Отримати поточний стан пристрою (останні дані)
    */
   static getCurrentState(deviceId) {

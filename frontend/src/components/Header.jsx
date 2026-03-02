@@ -17,6 +17,14 @@ export default function Header() {
         <h1 className="header-title" onClick={() => navigate('/dashboard')}>
           UPS Monitor System
         </h1>
+        <nav className="header-nav">
+          <button onClick={() => navigate('/dashboard')} className="nav-link">
+            Dashboard
+          </button>
+          <button onClick={() => navigate('/settings')} className="nav-link">
+            Налаштування
+          </button>
+        </nav>
         <div className="header-user">
           <span className="username">{user?.username}</span>
           <button onClick={handleLogout} className="logout-btn">

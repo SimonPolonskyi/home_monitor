@@ -19,6 +19,24 @@
   margin: 0;
 }
 
+.header-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.nav-link:hover {
+  color: white;
+}
+
 .header-user {
   display: flex;
   align-items: center;

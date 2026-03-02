@@ -46,12 +46,28 @@ X-API-Key: {REMOTE_SERVER_API_KEY}
     "valid": true
   },
   
-  "temperature": 25.5,
-  "temperature_valid": true,
+  "temperature_battery": {
+    "value": 25.5,
+    "valid": true,
+    "sensor": "DS18B20-Battery"
+  },
+  "temperature_board": {
+    "value": 28.3,
+    "valid": true,
+    "sensor": "DS18B20-Board"
+  },
   
   "efficiency": 94.9,
   "energy_consumed": 123.45,
   "energy_supplied": 117.12,
+  
+  "capacity": {
+    "total_ah": 20.0,
+    "remaining_ah": 18.5,
+    "remaining_percent": 92.5,
+    "total_wh": 240.0,
+    "remaining_wh": 222.0
+  },
   
   "errors": {
     "total": 5,
@@ -74,13 +90,19 @@ X-API-Key: {REMOTE_SERVER_API_KEY}
 
 **Поля:**
 - `device_id` - Унікальний ідентифікатор пристрою (MAC адреса або кастомний ID)
-- `timestamp` - Unix timestamp (мілісекунди)
+- `timestamp` - Unix timestamp в мілісекундах (синхронізовано через NTP, або millis() якщо NTP недоступний)
 - `status` - Статус системи: "ok", "warning", "error", "critical"
 - `data_valid` - Чи валідні дані датчиків
 - `battery` / `output` - Дані батареї та виходу (напруга, струм, потужність, валідність)
-- `temperature` - Температура (°C)
+- `temperature_battery` - Температура батареї (°C) з назвою датчика
+- `temperature_board` - Температура плати (°C) з назвою датчика
 - `efficiency` - Ефективність UPS (%)
 - `energy_consumed` / `energy_supplied` - Енергія (Wh)
+- `capacity` - Ємність батареї (опціонально, коли `BATTERY_CAPACITY_AH` > 0):
+  - `total_ah` - Номінальна ємність (А·год)
+  - `remaining_ah` - Залишок ємності (А·год), кулонометричний підрахунок
+  - `remaining_percent` - Стан заряду 0–100% (SOC)
+  - `total_wh` / `remaining_wh` - Ємність в Вт·год
 - `errors` - Статистика помилок (опціонально, якщо є помилки)
 - `warnings` - Масив попереджень (опціонально, якщо є проблеми)
 
@@ -109,7 +131,8 @@ X-API-Key: {REMOTE_SERVER_API_KEY}
   "sensor_data": {
     "battery_valid": false,
     "output_valid": true,
-    "temperature_valid": true,
+    "temperature_battery_valid": true,
+    "temperature_board_valid": true,
     "data_valid": false
   }
 }

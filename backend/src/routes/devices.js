@@ -4,6 +4,7 @@ import { Device } from '../models/Device.js';
 import { Measurement } from '../models/Measurement.js';
 import { Error } from '../models/Error.js';
 import { getDB } from '../database/db.js';
+import { toDate } from '../utils/timestamp.js';
 
 const router = express.Router();
 
@@ -18,15 +19,13 @@ router.get('/', (req, res) => {
   try {
     const { type } = req.query;
     const devices = Device.findAll(type || null);
-    
-    // Додати поточний стан для кожного пристрою
-    const devicesWithState = devices.map(device => {
-      const currentState = Device.getCurrentState(device.device_id);
-      return {
-        ...device,
-        current_state: currentState,
-      };
-    });
+    const deviceIds = devices.map((d) => d.device_id);
+    const statesMap = Device.getCurrentStatesBatch(deviceIds);
+
+    const devicesWithState = devices.map((device) => ({
+      ...device,
+      current_state: statesMap[device.device_id] || null,
+    }));
     
     res.json({
       success: true,
@@ -71,6 +70,37 @@ router.get('/:device_id', (req, res) => {
 });
 
 /**
+ * PATCH /api/devices/:device_id
+ * Оновити метадані пристрою (name, location, model)
+ */
+router.patch('/:device_id', (req, res) => {
+  try {
+    const { device_id } = req.params;
+    const { name, location, model } = req.body;
+
+    const device = Device.update(device_id, { name, location, model });
+
+    if (!device) {
+      return res.status(404).json({
+        success: false,
+        error: 'Device not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      device,
+    });
+  } catch (error) {
+    console.error('Error updating device:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update device',
+    });
+  }
+});
+
+/**
  * GET /api/devices/:device_id/current
  * Поточний стан пристрою
  */
@@ -101,25 +131,26 @@ router.get('/:device_id/current', (req, res) => {
 
 /**
  * GET /api/devices/:device_id/history
- * Історія вимірювань
+ * Історія вимірювань (з пагінацією)
  */
 router.get('/:device_id/history', (req, res) => {
   try {
     const { device_id } = req.params;
-    const { from, to, limit = 1000 } = req.query;
-    
+    const { from, to, limit = 100, offset = 0 } = req.query;
+
+    const maxLimit = from || to ? 3000 : 1000;
     const options = {
       from: from ? parseInt(from) : null,
       to: to ? parseInt(to) : null,
-      limit: parseInt(limit),
+      limit: Math.min(parseInt(limit) || 100, maxLimit),
+      offset: parseInt(offset) || 0,
     };
-    
-    const history = Measurement.getHistory(device_id, options);
-    
+
+    const result = Measurement.getHistory(device_id, options);
+
     res.json({
       success: true,
-      count: history.length,
-      data: history,
+      ...result,
     });
   } catch (error) {
     console.error('Error fetching history:', error);
@@ -156,6 +187,62 @@ router.get('/:device_id/errors', (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch errors',
+    });
+  }
+});
+
+/**
+ * GET /api/devices/:device_id/export
+ * Експорт даних (CSV або JSON)
+ */
+router.get('/:device_id/export', (req, res) => {
+  try {
+    const { device_id } = req.params;
+    const { format = 'json', from, to, limit = 10000 } = req.query;
+
+    const options = {
+      from: from ? parseInt(from) : null,
+      to: to ? parseInt(to) : null,
+      limit: Math.min(parseInt(limit) || 10000, 50000),
+      offset: 0,
+    };
+
+    const { data } = Measurement.getHistory(device_id, options);
+
+    if (format === 'csv') {
+      const headers = ['timestamp', 'status', 'battery_voltage', 'output_voltage', 'temperature', 'efficiency', 'capacity'];
+      const rows = data.map((m) => {
+        const d = m.data || {};
+        const temp = d.temperature_battery?.value ?? d.temperature_board?.value ?? d.temperature;
+        return [
+          (toDate(m.timestamp) || new Date()).toISOString(),
+          m.status,
+          d.battery?.voltage ?? '',
+          d.output?.voltage ?? '',
+          temp ?? '',
+          d.efficiency ?? '',
+          d.capacity?.remaining_percent ?? '',
+        ].join(',');
+      });
+      const csv = [headers.join(','), ...rows].join('\n');
+
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="ups-${device_id}-${Date.now()}.csv"`);
+      res.send('\uFEFF' + csv); // BOM for Excel UTF-8
+      return;
+    }
+
+    res.json({
+      success: true,
+      device_id,
+      count: data.length,
+      data,
+    });
+  } catch (error) {
+    console.error('Error exporting data:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to export data',
     });
   }
 });
